@@ -1,20 +1,51 @@
+import { LogOut, User } from "lucide-react";
 import { Outlet } from "react-router-dom";
 
 import MobileNavbar from "../Navbar/MobileNavbar";
 import { Toaster } from "../ui/sonner";
 
-const Layout = () => {
-  /*======================== Props ======================== */
+import { Button } from "@/components/ui/button";
 
-  // const { handleMenuTitle } = useLayout();
-  // const isTrue = false;
+import useUserStore from "@/store/user/userStore";
+
+const Layout = () => {
+  /*======================== Store ======================== */
+
+  const { user, logout } = useUserStore();
+
+  /*======================== Handlers ======================== */
+
+  const handleLogout = () => {
+    logout();
+  };
 
   /*======================== Return ======================== */
 
   return (
     <div>
-      <div className="bg-gradient-navbar relative container mx-auto h-full w-full">
-        <div className="relative z-[1] space-y-4 p-5">
+      <div className="relative container mx-auto h-full w-full">
+        {/* Header with user info and logout */}
+        {user && (
+          <div className="flex items-center justify-between border-b border-gray-700 p-5">
+            <div className="flex items-center gap-2 text-white">
+              <User className="h-5 w-5" />
+              <span className="text-sm">
+                Welcome, {user.firstName} {user.lastName}
+              </span>
+            </div>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="border-white text-white hover:bg-white hover:text-black"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+        )}
+
+        <div className="space-y-4 p-5">
           {/* <div
             className={cn(
               "flex items-center justify-center gap-2.5 rounded-[10px] bg-[#323B4F] px-5 py-2.5 transition-all duration-300",
@@ -37,7 +68,7 @@ const Layout = () => {
 
       <MobileNavbar />
 
-      <div className="bg-gradient-bg fixed top-[0%] left-[43%] h-[150vh] w-[120vh] rotate-[30deg]"></div>
+      {/* <div className="bg-gradient-bg fixed top-[0%] left-[43%] h-[150vh] w-[120vh] rotate-[30deg]"></div> */}
     </div>
   );
 };

@@ -1,11 +1,13 @@
 import { Fragment } from "react";
 import { Route, Routes } from "react-router-dom";
 
-import useRouter from "./useRouter";
+import useRouter, { EPath } from "./useRouter";
 
 import Layout from "@/components/layout/layout";
 
 import NotFound from "@/pages/NotFound";
+import Signin from "@/pages/Signin";
+import Signup from "@/pages/Signup";
 
 const RouteConfig = () => {
   const { routes } = useRouter();
@@ -31,6 +33,8 @@ const RouteConfig = () => {
               routes for. */}
         {/* for not found page */}
       </Route>
+      <Route path={EPath.signup} element={<Signup />} />
+      <Route path={EPath.signin} element={<Signin />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

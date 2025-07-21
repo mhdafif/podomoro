@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
+// import useUserStore from "@/store/user/userStore";
+
 const useLayout = () => {
   /*======================== Props ======================== */
 
   const { pathname } = useLocation();
+  // const navigate = useNavigate();
+
+  /*======================== Store ======================== */
+
+  // const { isAuthenticated } = useUserStore();
 
   /*======================== UseState ======================== */
 
@@ -52,6 +59,17 @@ const useLayout = () => {
       window.removeEventListener("scroll", toggleVisibility);
     };
   }, []);
+
+  // Check authentication and redirect to signin if not authenticated
+  // useEffect(() => {
+  //   // Skip authentication check for public routes
+  //   const publicRoutes = ["/signin", "/signup"];
+  //   const isPublicRoute = publicRoutes.includes(pathname);
+
+  //   if (!isPublicRoute && !isAuthenticated()) {
+  //     navigate("/signin", { replace: true });
+  //   }
+  // }, [pathname, isAuthenticated, navigate]);
 
   /*======================== Return ======================== */
 

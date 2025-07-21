@@ -12,9 +12,14 @@ function App() {
 
   return (
     <div className="relative min-h-dvh w-dvw">
-      <QueryClientProvider client={queryClient}>
-        <RouteConfig />
-      </QueryClientProvider>
+      <div className="relative z-[1]">
+        <QueryClientProvider client={queryClient}>
+          <RouteConfig />
+        </QueryClientProvider>
+      </div>
+
+      <div className="bg-gradient-navbar fixed top-0 left-0 h-screen w-screen"></div>
+      <div className="bg-gradient-bg fixed top-[0%] left-[43%] h-[150vh] w-[120vh] rotate-[30deg]"></div>
     </div>
   );
 }

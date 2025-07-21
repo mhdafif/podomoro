@@ -14,6 +14,8 @@ export const EPath = {
   useShadcn: "/shadcn",
   tes: "/tes",
   tes2: "/tes2",
+  signin: "/signin",
+  signup: "/signup",
 };
 
 interface IRoutes {
@@ -67,7 +69,7 @@ const useRouter = () => {
   // }, [pathname]);
 
   useEffect(() => {
-    // to reset loading if somehow when login or something(api request) stuck the loading as true
+    // to reset loading if somehow when signin or something(api request) stuck the loading as true
     if (loading) {
       resetGlobalState("loading");
     }
@@ -80,6 +82,16 @@ const useRouter = () => {
       path: EPath.home,
       element: <Home />,
     },
+    // {
+    //   path: EPath.signin,
+    //   element: <Signin />,
+    // },
+    // {
+    //   path: EPath.signup,
+    //   element: <Signup />,
+    // },
+
+    // OTHERS
     {
       path: EPath.useShadcn,
       element: <HowToShadcn />,

@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 import Timer from "@/modules/home/timer/Timer";
 
@@ -16,11 +17,12 @@ const Home = () => {
     <div className="min-h-screen">
       <div className="space-y-6">
         <div className="">
-          <Card className="rounded-5 from-dark-card/60 to-dark-card-secondary/60 col-span-1 border-2 border-white/10 bg-gradient-to-br backdrop-blur-xl">
+          <Card className="">
             <CardContent className="pt-6">
               <Timer />
             </CardContent>
           </Card>
+          <Input placeholder="Tes" aria-invalid />
         </div>
       </div>
     </div>

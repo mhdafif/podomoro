@@ -1,10 +1,18 @@
 // import { setViewportHeight } from "@/utils/setViewportHeight";
 import { QueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import useDummyStore from "@/store/dummy/dummyStore";
+import useUserStore from "@/store/user/userStore";
+
+// import useDummyStore from "@/store/dummy/dummyStore";
 
 const useApp = () => {
+  /*======================== Props ======================== */
+
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
   /*======================== UseState ======================== */
 
   const [queryClient] = useState(
@@ -22,7 +30,8 @@ const useApp = () => {
 
   /*======================== Store ======================== */
 
-  const loadTesApi = useDummyStore((state) => state.loadData);
+  // const loadTesApi = useDummyStore((state) => state.loadData);
+  const { isAuthenticated } = useUserStore();
 
   /*======================== UseEffect ======================== */
 
@@ -31,9 +40,20 @@ const useApp = () => {
   //   setViewportHeight();
   // }, []);
 
+  // useEffect(() => {
+  //   loadTesApi();
+  // }, []);
+
+  // Check authentication and redirect to signin if not authenticated
   useEffect(() => {
-    loadTesApi();
-  }, []);
+    // Skip authentication check for public routes
+    const publicRoutes = ["/signin", "/signup"];
+    const isPublicRoute = publicRoutes.includes(pathname);
+
+    if (!isPublicRoute && !isAuthenticated()) {
+      navigate("/signin", { replace: true });
+    }
+  }, [pathname, isAuthenticated, navigate]);
 
   /*======================== Return ======================== */
   return {
