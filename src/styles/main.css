@@ -50,11 +50,71 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Custom Theme Colors */
+  --color-dark-bg: #242c3b;
+  --color-dark-card: #353f54;
+  --color-dark-card-secondary: #222834;
+  --color-blue-primary: #34c8e8;
+  --color-blue-secondary: #4e4af2;
+  --color-blue-tertiary: #3ca4eb;
+  --color-gradient-blue: #37b6e9;
+  --color-gradient-purple: #4b4ced;
+
+  /* Glass Overlays */
+  --color-glass-dark: rgba(54, 62, 81, 0.6);
+  --color-glass-darker: rgba(25, 30, 38, 0.6);
+  --color-glass-blue: rgba(16, 20, 28, 0.6);
+
+  /* Overlay + UI */
+  --color-status-overlay: rgba(43, 52, 69, 0.5);
+  --color-text-secondary: rgba(255, 255, 255, 0.6);
+
+  /* Background Gradients */
+  /* --gradient-primary: linear-gradient(153deg, #34c8e8 1.7%, #4e4af2 114.52%);
+  --gradient-bg: linear-gradient(170deg, #37b6e9 0%, #4b4ced 100%);
+  --gradient-card: linear-gradient(170deg, #353f54 27.98%, #222834 81.2%);
+  --gradient-glass: linear-gradient(
+    167deg,
+    rgba(54, 62, 81, 0.6) 25.94%,
+    rgba(25, 30, 38, 0.6) 68.26%
+  ); */
+  /* --gradient-navbar: linear-gradient(
+    180deg,
+    #363e51 -4.83%,
+    #181c24 116.91%
+  ); */
+
+  /* Box Shadows */
+  --shadow-card:
+    0px 20px 60px rgba(16, 20, 28, 0.6), 0px -20px 40px rgba(43, 52, 69, 0.5);
+  --shadow-button: 0px -20px 30px rgba(43, 52, 69, 0.5), 0px 20px 30px #10141c;
+  --shadow-glass: 0px 30px 100px rgba(82, 108, 143, 1);
+  --shadow-fab: 0px 20px 30px rgba(16, 20, 28, 0.6);
+  --shadow-pushed:
+    -4px -4px 8px 0px #364055 inset, 4px 4px 8px 0px #202633 inset;
+  --shadow-popped: -4px -4px 10px 0px #38445a, 4px 4px 10px 0px #252b39;
 }
-/* 
-@theme inline {
-  
-} */
+
+.bg-gradient-primary {
+  background: linear-gradient(153deg, #34c8e8 1.7%, #4e4af2 114.52%);
+}
+.bg-gradient-bg {
+  background: linear-gradient(170deg, #37b6e9 0%, #4b4ced 100%);
+}
+.bg-gradient-card {
+  background: linear-gradient(170deg, #353f54 27.98%, #222834 81.2%);
+}
+.bg-gradient-glass {
+  background: linear-gradient(
+    167deg,
+    rgba(54, 62, 81, 0.6) 25.94%,
+    rgba(25, 30, 38, 0.6) 68.26%
+  );
+}
+.bg-gradient-navbar {
+  background: linear-gradient(180deg, #363e51 -4.83%, #181c24 116.91%);
+}
 
 /* below is installed by shadcn, START */
 :root {
@@ -129,6 +189,8 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    /* font-family: "Quicksand", sans-serif; */
+    font-family: "Tektur", sans-serif;
   }
   body {
     @apply bg-background text-foreground;
@@ -218,3 +280,21 @@ input:autofill {
 input:-webkit-autofill {
   color: white;
 }
+
+.time-card {
+  clip-path: polygon(0 0, 80% 0%, 100% 20%, 100% 100%, 20% 100%, 0% 80%);
+}
+.dots-timer .dot.active {
+  @apply w-12;
+}
+.dots-timer .dot.finished {
+  @apply bg-blue-tertiary;
+}
+/* .dots-timer .dot.active::after {
+  content: "";
+  @apply absolute z-[1] h-full w-1/2 animate-pulse bg-slate-800;
+}
+
+.dots-timer .dot.active.paused::after {
+  @apply animate-none;
+} */

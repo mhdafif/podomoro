@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const useLayout = () => {
+  /*======================== Props ======================== */
+
+  const { pathname } = useLocation();
+
   /*======================== UseState ======================== */
 
   const [isVisibleScrollToTop, setIsVisibleScrollToTop] = useState(false);
@@ -24,6 +29,19 @@ const useLayout = () => {
     });
   };
 
+  const handleMenuTitle = () => {
+    switch (pathname) {
+      case "/":
+        return "Home";
+      case "/tes":
+        return "Report";
+      case "/tes2":
+        return "Profile";
+      default:
+        return "";
+    }
+  };
+
   /*======================== UseEffect ======================== */
 
   // Adding event listener for scroll
@@ -40,6 +58,7 @@ const useLayout = () => {
   return {
     isVisibleScrollToTop,
     scrollToTop,
+    handleMenuTitle,
   };
 };
 

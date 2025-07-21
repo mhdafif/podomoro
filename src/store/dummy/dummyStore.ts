@@ -3,7 +3,7 @@ import { devtools, persist } from "zustand/middleware";
 
 import type { IDummyState, IDummyStore } from "./IDummyStore";
 
-import http from "@/config/http";
+// import http from "@/config/http";
 
 const initialState: IDummyState = {
   loading: false,
@@ -48,16 +48,21 @@ const dummyStoreSlice: StateCreator<
   loadData: async () => {
     try {
       set({ loading: true }, false, "loading");
-      const response = await http({
-        url: "/api/dummy",
-      });
-      set(
-        {
-          data: response.data.data,
-        },
-        false,
-        "loadData"
-      );
+      // const response = await http({
+      //   url: "/users/serializer",
+      //   // url: "/users/admin/serializer",
+      //   headers: {
+      //     Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Impob25kb2VAZ21haWwuY29tIiwiaWQiOiJjbWNmMDhpcTQwMDAwMHNhMjI4MWtvZTAzIiwicm9sZSI6IlVzZXIiLCJpYXQiOjE3NTIxMjczNTksImV4cCI6MTc1MjIxMzc1OX0.zoqbgxs572VMOIMYJ2Z-VAGtqwwom7HxAMyZz9Cd3qA`,
+      //   },
+      // });
+      // console.log("response", response);
+      // set(
+      //   {
+      //     data: response.data.data,
+      //   },
+      //   false,
+      //   "loadData"
+      // );
     } finally {
       set({ loading: false }, false, "loading");
     }

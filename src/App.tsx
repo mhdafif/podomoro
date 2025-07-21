@@ -11,7 +11,7 @@ function App() {
   /*======================== Return ======================== */
 
   return (
-    <div className="laptop:bg-whitef8 relativ flex h-full w-full min-w-[100vw] items-center justify-center bg-white">
+    <div className="relative min-h-dvh w-dvw">
       <QueryClientProvider client={queryClient}>
         <RouteConfig />
       </QueryClientProvider>

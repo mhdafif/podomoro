@@ -1,6 +1,6 @@
 "use client";
 
-import useCounter from "./useCounter";
+import useCounter from "./useCounter2";
 
 interface NumberCounterProps {
   min?: number;

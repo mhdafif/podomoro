@@ -15,83 +15,57 @@ import useTimerStore from "@/store/timer/timerStore";
 
 // stopped is before anything run
 type TimerState = "stopped" | "running" | "paused";
-type SessionType = "work" | "shortBreak" | "longBreak";
 
 const UseTimer = () => {
   /*======================== UseState ======================== */
 
   const [time, setTime] = useState(60); // 1 minute in seconds
   const [timerState, setTimerState] = useState<TimerState>("stopped");
-  const [currentSession, setCurrentSession] = useState<SessionType>("work");
-  const [currentStep, setCurrentStep] = useState(1); // Track current step in the flow
-  // const [autoStart, setAutoStart] = useState(true); // Auto-start next session
 
   /*======================== Store ======================== */
 
-  // const time = useTimerStore((state) => state.time);
   const flow = useTimerStore((state) => state.flow);
   const timerSetting = useTimerStore((state) => state.setting);
-  // const waitingFlow = useTimerStore((state) => state.getFirstWaitingFlow());
-  // const waitingFlow = useTimerStore((state) => state.getFlowState("waiting"));
+  const currentStep = useTimerStore((state) => state.currentStep);
+  const currentSession = useTimerStore((state) => state.currentSession);
+
   const runningFlow = useTimerStore((state) => state.getFlowState("running"));
   const handleFlow = useTimerStore((state) => state.setFlow);
   const handleSetting = useTimerStore((state) => state.setSetting);
-  const resetTimerState = useTimerStore((state) => state.resetState);
+  const getFlowSequence = useTimerStore((state) => state.getFlowSequence);
+  const getCurrentStepInfo = useTimerStore((state) => state.getCurrentStepInfo);
+  const getNextStepInfo = useTimerStore((state) => state.getNextStepInfo);
+  const setCurrentStep = useTimerStore((state) => state.setCurrentStep);
+  const setCurrentSession = useTimerStore((state) => state.setCurrentSession);
+  const resetFlow = useTimerStore((state) => state.resetFlow);
 
   /*======================== Handler ======================== */
-
-  // Get the flow sequence: work1 → short1 → work2 → short2 → work3 → short3 → work4 → long
-  const getFlowSequence = () => [
-    { type: "work" as SessionType, flow: 1 }, // Flow 1
-    { type: "shortBreak" as SessionType, flow: 1 }, // Short Rest 1
-    { type: "work" as SessionType, flow: 2 }, // Flow 2
-    { type: "shortBreak" as SessionType, flow: 2 }, // Short Rest 2
-    { type: "work" as SessionType, flow: 3 }, // Flow 3
-    { type: "shortBreak" as SessionType, flow: 3 }, // Short Rest 3
-    { type: "work" as SessionType, flow: 4 }, // Flow 4
-    { type: "longBreak" as SessionType, flow: 4 }, // Long Rest
-  ];
-
-  const getCurrentStepInfo = () => {
-    const sequence = getFlowSequence();
-    return sequence[currentStep - 1] || sequence[0];
-  };
-
-  const getNextStepInfo = () => {
-    const sequence = getFlowSequence();
-    const nextIndex = currentStep < sequence.length ? currentStep : 0;
-    return sequence[nextIndex];
-  };
-
-  const resetFlow = () => {
-    setCurrentStep(1);
-    setCurrentSession("work");
-    setTimerState("stopped");
-    resetTimerState("flow");
-  };
 
   const startNextSession = () => {
     const nextStep = getNextStepInfo();
     const currentStepInfo = getCurrentStepInfo();
 
     // Mark current work session as finished if it's a work session
-    if (currentStepInfo.type === "work") {
-      handleFlow(currentStepInfo.flow as 1 | 2 | 3 | 4, "finished");
+    if (currentStepInfo.session === "work") {
+      // Find which flow number corresponds to this step
+      const flowNumber = Math.ceil(currentStep / 2);
+      handleFlow(flowNumber as 1 | 2 | 3 | 4, "finished");
     }
 
     // Move to next step
-    if (currentStep < getFlowSequence().length) {
-      setCurrentStep(currentStep + 1);
-      setCurrentSession(nextStep.type);
+    if (nextStep) {
+      setCurrentStep(nextStep.step);
+      setCurrentSession(nextStep.session);
 
       // Set timer duration based on session type
-      switch (nextStep.type) {
-        case "work":
+      switch (nextStep.session) {
+        case "work": {
           setTime(timerSetting.work);
-          if (nextStep.flow) {
-            handleFlow(nextStep.flow as 1 | 2 | 3 | 4, "running");
-          }
+          // Set the flow as running for work sessions
+          const workFlowNumber = Math.ceil(nextStep.step / 2);
+          handleFlow(workFlowNumber as 1 | 2 | 3 | 4, "running");
           break;
+        }
         case "shortBreak":
           setTime(timerSetting.shortBreak);
           break;
@@ -109,6 +83,7 @@ const UseTimer = () => {
     } else {
       // Completed full cycle, reset
       resetFlow();
+      setTimerState("stopped");
     }
   };
 
@@ -118,12 +93,12 @@ const UseTimer = () => {
   };
 
   const toggleAutoStart = () => {
-    // setAutoStart(!autoStart);
     handleSetting("autoStart", !timerSetting.autoStart);
   };
 
   const handleReset = () => {
     resetFlow();
+    setTimerState("stopped");
   };
 
   const handleTimerState = () => {
@@ -132,25 +107,22 @@ const UseTimer = () => {
         const currentStepInfo = getCurrentStepInfo();
 
         // Set timer duration based on current session type
-        switch (currentStepInfo.type) {
-          case "work":
-            // setTime(timerSetting.work * 60);
+        switch (currentStepInfo.session) {
+          case "work": {
             setTime(timerSetting.work);
-            if (currentStepInfo.flow) {
-              handleFlow(currentStepInfo.flow as 1 | 2 | 3 | 4, "running");
-            }
+            // Set the flow as running for work sessions
+            const workFlowNumber = Math.ceil(currentStep / 2);
+            handleFlow(workFlowNumber as 1 | 2 | 3 | 4, "running");
             break;
+          }
           case "shortBreak":
-            // setTime(timerSetting.shortBreak * 60);
             setTime(timerSetting.shortBreak);
             break;
           case "longBreak":
             setTime(timerSetting.longBreak);
-            // setTime(timerSetting.longBreak * 60);
             break;
         }
 
-        setCurrentSession(currentStepInfo.type);
         setTimerState("running");
         break;
       }
@@ -162,6 +134,14 @@ const UseTimer = () => {
       default:
         setTimerState("paused");
         break;
+    }
+  };
+
+  const handleTimeChange = (newTime: number | ((prev: number) => number)) => {
+    if (typeof newTime === "function") {
+      setTime(newTime);
+    } else {
+      setTime(newTime);
     }
   };
 
@@ -203,7 +183,7 @@ const UseTimer = () => {
     flow,
     runningFlow,
     currentSession,
-    // currentStep,
+    currentStep,
     handleSetting,
     formatTime,
     handleTimerState,
@@ -212,6 +192,7 @@ const UseTimer = () => {
     toggleAutoStart,
     getCurrentStepInfo,
     getFlowSequence,
+    handleTimeChange,
   };
 };
 

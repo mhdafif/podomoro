@@ -12,7 +12,6 @@ const RouteConfig = () => {
 
   return (
     <Routes>
-      {/* under this is implement layout for what's inside */}
       <Route element={<Layout />}>
         {routes.map(({ index, path, element, children }) => (
           <Fragment key={path}>

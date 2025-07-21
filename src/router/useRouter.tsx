@@ -4,12 +4,16 @@ import { type JSX, useEffect } from "react";
 
 import Home from "@/pages/Home";
 import HowToShadcn from "@/pages/HowToShadcn";
+import PomodoroTaskManager from "@/pages/Tes";
+import PomodoroTaskManager2 from "@/pages/Tes2";
 
 import useGlobalStore from "@/store/global/globalStore";
 
 export const EPath = {
   home: "/",
   useShadcn: "/shadcn",
+  tes: "/tes",
+  tes2: "/tes2",
 };
 
 interface IRoutes {
@@ -79,6 +83,14 @@ const useRouter = () => {
     {
       path: EPath.useShadcn,
       element: <HowToShadcn />,
+    },
+    {
+      path: EPath.tes,
+      element: <PomodoroTaskManager />,
+    },
+    {
+      path: EPath.tes2,
+      element: <PomodoroTaskManager2 />,
     },
   ];
 

@@ -1,47 +1,26 @@
-import { Trans, useTranslation } from "react-i18next";
+import { Card, CardContent } from "@/components/ui/card";
 
-import useHome from "@/modules/home/useHome";
+import Timer from "@/modules/home/timer/Timer";
 
-import useGlobalStore from "@/store/global/globalStore";
+// import Timer from "@/modules/home/timer/Timer.old";
 
 const Home = () => {
   /*======================== Props ======================== */
 
-  const { t, i18n } = useTranslation();
-  const { handleChangeLanguage } = useHome();
-
-  /*======================== Store ======================== */
-
-  const { loading } = useGlobalStore();
+  // const { t, i18n } = useTranslation();
+  // const { handleChangeLanguage } = useHome();
 
   /*======================== Return ======================== */
 
   return (
-    <div>
-      {loading && <div>{t("loading")}</div>}
-      THIS IS{" "}
-      <Trans
-        i18nKey="home"
-        components={{
-          green: <span className="text-uvgreen" />,
-        }}
-      />
-      <div className="">
-        <div
-          className={`w-52 cursor-pointer p-3 ${
-            i18n.resolvedLanguage === "en" ? "bg-uvgreen !text-white" : ""
-          }`}
-          onClick={() => handleChangeLanguage("en")}
-        >
-          <div className="mr-1">English</div>
-        </div>
-        <div
-          className={`w-52 cursor-pointer p-3 ${
-            i18n.resolvedLanguage === "id" ? "bg-uvgreen !text-white" : ""
-          }`}
-          onClick={() => handleChangeLanguage("id")}
-        >
-          <div className="mr-1">Bahasa</div>
+    <div className="min-h-screen">
+      <div className="space-y-6">
+        <div className="">
+          <Card className="rounded-5 from-dark-card/60 to-dark-card-secondary/60 col-span-1 border-2 border-white/10 bg-gradient-to-br backdrop-blur-xl">
+            <CardContent className="pt-6">
+              <Timer />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

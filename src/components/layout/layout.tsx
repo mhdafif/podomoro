@@ -1,36 +1,43 @@
 import { Outlet } from "react-router-dom";
 
+import MobileNavbar from "../Navbar/MobileNavbar";
 import { Toaster } from "../ui/sonner";
-import useLayout from "./useLayout";
-
-import arrowIcon from "@/assets/icon/arrow-white.svg";
 
 const Layout = () => {
   /*======================== Props ======================== */
 
-  const { isVisibleScrollToTop, scrollToTop } = useLayout();
+  // const { handleMenuTitle } = useLayout();
+  // const isTrue = false;
 
   /*======================== Return ======================== */
 
   return (
     <div>
-      <div className="relative h-full w-full">
-        <div className="laptop:bg-whitef8 bg-white">
+      <div className="bg-gradient-navbar relative container mx-auto h-full w-full">
+        <div className="relative z-[1] space-y-4 p-5">
+          {/* <div
+            className={cn(
+              "flex items-center justify-center gap-2.5 rounded-[10px] bg-[#323B4F] px-5 py-2.5 transition-all duration-300",
+              isTrue
+                ? "shadow-pushed bg-[#323B4F]"
+                : "shadow-popped bg-[#28303F]"
+            )}
+          >
+            <span
+              className={`font-poppins bg-gradient-to-r from-[#3CA4EB] to-[#4286EE] bg-clip-text text-center text-[15px] leading-normal font-bold tracking-[0.35px] text-transparent`}
+            >
+              {handleMenuTitle()}
+            </span>
+          </div> */}
           <Outlet />
         </div>
       </div>
 
       <Toaster />
 
-      {/* Scroll Top */}
-      {isVisibleScrollToTop && (
-        <div
-          className="laptop:!hidden go-top bg-uvgreen rounded-5 fixed right-6 bottom-6 z-5 block cursor-pointer p-1"
-          onClick={scrollToTop}
-        >
-          <img src={arrowIcon} className="w-6 rotate-180" />
-        </div>
-      )}
+      <MobileNavbar />
+
+      <div className="bg-gradient-bg fixed top-[0%] left-[43%] h-[150vh] w-[120vh] rotate-[30deg]"></div>
     </div>
   );
 };

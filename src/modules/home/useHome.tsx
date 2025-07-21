@@ -1,4 +1,4 @@
-import { queryLoadDummy } from "@/queries/dummy/dummyQueries";
+// import { queryLoadDummy } from "@/queries/dummy/dummyQueries";
 import { useTranslation } from "react-i18next";
 
 const useHome = () => {
@@ -8,7 +8,7 @@ const useHome = () => {
 
   /*======================== Queries ======================== */
 
-  const { data, isLoading } = queryLoadDummy();
+  // const { data, isLoading } = queryLoadDummy();
 
   /*======================== Handler ======================== */
 
@@ -19,8 +19,8 @@ const useHome = () => {
   /*======================== Return ======================== */
 
   return {
-    data,
-    isLoading,
+    // data,
+    // isLoading,
     handleChangeLanguage,
   };
 };

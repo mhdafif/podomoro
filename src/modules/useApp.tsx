@@ -1,6 +1,8 @@
 // import { setViewportHeight } from "@/utils/setViewportHeight";
 import { QueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import useDummyStore from "@/store/dummy/dummyStore";
 
 const useApp = () => {
   /*======================== UseState ======================== */
@@ -18,12 +20,20 @@ const useApp = () => {
     })
   );
 
+  /*======================== Store ======================== */
+
+  const loadTesApi = useDummyStore((state) => state.loadData);
+
   /*======================== UseEffect ======================== */
 
   // uncomment below for setViewportHeight on mobile devices, because old devices doesn't support some modern approach / css properties such as svh,dvh,etc...
   // useEffect(() => {
   //   setViewportHeight();
   // }, []);
+
+  useEffect(() => {
+    loadTesApi();
+  }, []);
 
   /*======================== Return ======================== */
   return {
