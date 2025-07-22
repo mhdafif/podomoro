@@ -120,7 +120,6 @@ const Timer = () => {
           {...{ timerState, handleReset, handleSkip, handleTimerState }}
         />
       </div>
-      {timerState}
     </div>
   );
 };

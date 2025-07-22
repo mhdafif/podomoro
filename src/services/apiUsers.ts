@@ -1,5 +1,9 @@
-import type { ISigninData, ISigninResponse } from "@/queries/signin/ISignin";
-import type { ISignupData, ISignupResponse } from "@/queries/signup/ISignup";
+import type {
+  ISigninData,
+  ISigninResponse,
+  ISignupData,
+  ISignupResponse,
+} from "@/queries/user/IUser";
 
 import http from "@/config/http";
 

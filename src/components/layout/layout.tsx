@@ -1,5 +1,5 @@
 import { LogOut, User } from "lucide-react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 import MobileNavbar from "../Navbar/MobileNavbar";
 import { Toaster } from "../ui/sonner";
@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import useUserStore from "@/store/user/userStore";
 
 const Layout = () => {
+  /*======================== Props ======================== */
+  const navigate = useNavigate();
   /*======================== Store ======================== */
 
   const { user, logout } = useUserStore();
@@ -17,6 +19,7 @@ const Layout = () => {
 
   const handleLogout = () => {
     logout();
+    navigate("/signin", { replace: true });
   };
 
   /*======================== Return ======================== */
@@ -37,7 +40,7 @@ const Layout = () => {
               onClick={handleLogout}
               variant="outline"
               size="sm"
-              className="border-white text-white hover:bg-white hover:text-black"
+              className="border-none bg-black text-white"
             >
               <LogOut className="mr-2 h-4 w-4" />
               Logout

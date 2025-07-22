@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 
+import Tasks from "@/modules/home/tasks/Tasks";
 import Timer from "@/modules/home/timer/Timer";
 
 // import Timer from "@/modules/home/timer/Timer.old";
@@ -16,14 +16,16 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       <div className="space-y-6">
-        <div className="">
-          <Card className="">
-            <CardContent className="pt-6">
-              <Timer />
-            </CardContent>
-          </Card>
-          <Input placeholder="Tes" aria-invalid />
-        </div>
+        <Card className="">
+          <CardContent className="pt-6">
+            <Timer />
+          </CardContent>
+        </Card>
+        <Card className="">
+          <CardContent>
+            <Tasks />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

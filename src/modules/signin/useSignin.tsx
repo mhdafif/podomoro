@@ -1,5 +1,5 @@
-import type { ISigninData } from "@/queries/signin/ISignin";
-import { querySignin } from "@/queries/signin/signinQueries";
+import type { ISigninData } from "@/queries/user/IUser";
+import { querySignin } from "@/queries/user/userQueries";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -75,7 +75,7 @@ const useSignin = () => {
       const response = await signIn(formData);
 
       // Store user data and token
-      setUser(response.data.user, response.data.accessToken);
+      setUser(response.user, response.accessToken);
 
       // Reset form
       setFormData({

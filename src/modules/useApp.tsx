@@ -46,12 +46,14 @@ const useApp = () => {
 
   // Check authentication and redirect to signin if not authenticated
   useEffect(() => {
-    // Skip authentication check for public routes
     const publicRoutes = ["/signin", "/signup"];
     const isPublicRoute = publicRoutes.includes(pathname);
 
     if (!isPublicRoute && !isAuthenticated()) {
       navigate("/signin", { replace: true });
+    }
+    if (isPublicRoute && isAuthenticated()) {
+      navigate("/", { replace: true });
     }
   }, [pathname, isAuthenticated, navigate]);
 

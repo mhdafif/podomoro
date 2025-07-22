@@ -1,6 +1,6 @@
 import { AlertCircle, CheckCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -208,9 +208,9 @@ const Signup = () => {
           <div className="text-center">
             <p className="text-sm text-white">
               Already have an account?{" "}
-              <a href="/signin" className="text-blue-tertiary font-medium">
+              <Link to="/signin" className="text-blue-tertiary font-medium">
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
-import type { ISignupData } from "@/queries/signup/ISignup";
-import { querySignup } from "@/queries/signup/signupQueries";
+import type { ISignupData } from "@/queries/user/IUser";
+import { querySignup } from "@/queries/user/userQueries";
 import { useState } from "react";
 
 const useSignup = () => {
