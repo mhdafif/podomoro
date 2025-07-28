@@ -22,5 +22,52 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relations
+  tasks   Task[]
+  reports Report[]
+
   @@map("users")
+}
+
+model Task {
+  id        String     @id @default(cuid())
+  name      String
+  status    TaskStatus @default(ACTIVE)
+  userId    String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports Report[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("tasks")
+}
+
+model Report {
+  id              String   @id @default(cuid())
+  date            DateTime @default(now()) @db.Date
+  completeMinutes Int      @map("complete_minutes")
+  taskId          String
+  userId          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([date])
+  @@map("reports")
+}
+
+enum TaskStatus {
+  ACTIVE
+  INACTIVE
+
+  @@map("task_status")
 }
