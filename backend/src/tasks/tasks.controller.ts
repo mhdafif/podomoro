@@ -33,6 +33,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ResponseDto } from 'src/dto/response.dto';
 import { plainToInstance } from 'class-transformer';
 import { TaskResponseDto } from './dto/task-response.dto';
+import { ReportResponseDto } from './dto/report-response.dto';
 
 interface RequestWithUser extends Request {
   user: { id: string; email: string };
@@ -55,9 +56,15 @@ export class TasksController {
   async createTask(
     @Request() req: RequestWithUser,
     @Body() createTaskDto: CreateTaskDto,
-  ): Promise<ResponseDto<any>> {
+  ): Promise<ResponseDto<TaskResponseDto>> {
     const task = await this.tasksService.createTask(req.user.id, createTaskDto);
-    return { data: task, message: 'Task created successfully' };
+    const transformedTask = plainToInstance(TaskResponseDto, task, {
+      excludeExtraneousValues: true,
+    });
+    return {
+      data: transformedTask,
+      message: 'Task created successfully',
+    };
   }
 
   @Get()
@@ -69,10 +76,19 @@ export class TasksController {
   async getUserTasks(
     @Request() req: RequestWithUser,
     @Query() query: TaskQueryDto,
-  ) {
+  ): Promise<ResponseDto<any>> {
     const response = await this.tasksService.getUserTasks(req.user.id, query);
+
+    // Transform the tasks data to only include id, name, and status
+    const transformedTasks = plainToInstance(TaskResponseDto, response.tasks, {
+      excludeExtraneousValues: true,
+    });
+
     return {
-      data: plainToInstance(TaskResponseDto, response),
+      data: {
+        ...response,
+        tasks: transformedTasks,
+      },
       message: 'Tasks retrieved successfully',
     };
   }
@@ -102,8 +118,25 @@ export class TasksController {
   async getUserReports(
     @Request() req: RequestWithUser,
     @Query() query: ReportQueryDto,
-  ) {
-    return this.tasksService.getUserReports(req.user.id, query);
+  ): Promise<ResponseDto<any>> {
+    const response = await this.tasksService.getUserReports(req.user.id, query);
+
+    // Transform the reports data to exclude unwanted fields
+    const transformedReports = plainToInstance(
+      ReportResponseDto,
+      response.reports,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      data: {
+        ...response,
+        reports: transformedReports,
+      },
+      message: 'Reports retrieved successfully',
+    };
   }
 
   @Get(':id')
@@ -120,8 +153,15 @@ export class TasksController {
   async getTaskById(
     @Request() req: RequestWithUser,
     @Param('id') taskId: string,
-  ) {
-    return this.tasksService.getTaskById(taskId, req.user.id);
+  ): Promise<ResponseDto<TaskResponseDto>> {
+    const task = await this.tasksService.getTaskById(taskId, req.user.id);
+    const transformedTask = plainToInstance(TaskResponseDto, task, {
+      excludeExtraneousValues: true,
+    });
+    return {
+      data: transformedTask,
+      message: 'Task retrieved successfully',
+    };
   }
 
   @Put(':id')
@@ -139,8 +179,19 @@ export class TasksController {
     @Request() req: RequestWithUser,
     @Param('id') taskId: string,
     @Body() updateTaskDto: UpdateTaskDto,
-  ) {
-    return this.tasksService.updateTask(taskId, req.user.id, updateTaskDto);
+  ): Promise<ResponseDto<TaskResponseDto>> {
+    const task = await this.tasksService.updateTask(
+      taskId,
+      req.user.id,
+      updateTaskDto,
+    );
+    const transformedTask = plainToInstance(TaskResponseDto, task, {
+      excludeExtraneousValues: true,
+    });
+    return {
+      data: transformedTask,
+      message: 'Task updated successfully',
+    };
   }
 
   @Delete(':id')
@@ -157,8 +208,12 @@ export class TasksController {
   async deleteTask(
     @Request() req: RequestWithUser,
     @Param('id') taskId: string,
-  ) {
-    return this.tasksService.deleteTask(taskId, req.user.id);
+  ): Promise<ResponseDto<{ success: boolean }>> {
+    await this.tasksService.deleteTask(taskId, req.user.id);
+    return {
+      data: { success: true },
+      message: 'Task deleted successfully',
+    };
   }
 
   @Post(':id/reports')
@@ -176,12 +231,21 @@ export class TasksController {
     @Request() req: RequestWithUser,
     @Param('id') taskId: string,
     @Body() createReportDto: CreateReportDto,
-  ) {
-    return this.tasksService.addTaskReport(
+  ): Promise<ResponseDto<ReportResponseDto>> {
+    const report = await this.tasksService.addTaskReport(
       taskId,
       req.user.id,
       createReportDto,
     );
+
+    const transformedReport = plainToInstance(ReportResponseDto, report, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      data: transformedReport,
+      message: 'Report added successfully',
+    };
   }
 
   @Get(':id/reports')
@@ -199,7 +263,27 @@ export class TasksController {
     @Request() req: RequestWithUser,
     @Param('id') taskId: string,
     @Query() query: ReportQueryDto,
-  ) {
-    return this.tasksService.getTaskReports(taskId, req.user.id, query);
+  ): Promise<ResponseDto<any>> {
+    const response = await this.tasksService.getTaskReports(
+      taskId,
+      req.user.id,
+      query,
+    );
+
+    const transformedReports = plainToInstance(
+      ReportResponseDto,
+      response.reports,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return {
+      data: {
+        ...response,
+        reports: transformedReports,
+      },
+      message: 'Task reports retrieved successfully',
+    };
   }
 }

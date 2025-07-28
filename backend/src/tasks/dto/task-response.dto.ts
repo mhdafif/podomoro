@@ -1,27 +1,21 @@
-import { IsString, IsNotEmpty } from 'class-validator';
-import { Exclude } from 'class-transformer';
+import { Expose, Exclude } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 import { TaskStatus } from './task.dto';
 
+@Exclude()
 export class TaskResponseDto {
-  // @ApiProperty({ description: 'Task name' })
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ description: 'Task ID' })
+  @Expose()
   id: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ description: 'Task name' })
+  @Expose()
   name: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Task status',
+    enum: TaskStatus,
+  })
+  @Expose()
   status: TaskStatus;
-
-  @Exclude()
-  userId: string;
-
-  @Exclude()
-  createdAt: string;
-
-  @Exclude()
-  updatedAt: string;
 }
