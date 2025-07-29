@@ -1,31 +1,31 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Transform } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 
-export class UserEntity {
+export class UserDto {
   @ApiProperty()
+  @Expose()
   id: string;
 
   @ApiProperty()
+  @Expose()
   email: string;
 
   @Exclude()
   password: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
+  @Expose()
   firstName?: string | null;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
+  @Expose()
   lastName?: string | null;
 
-  @ApiProperty()
+  // @ApiProperty()
   @Transform(({ value }: { value: Date }) => value.toISOString())
   createdAt: Date;
 
-  @ApiProperty()
+  // @ApiProperty()
   @Transform(({ value }: { value: Date }) => value.toISOString())
   updatedAt: Date;
-
-  constructor(partial: Partial<UserEntity>) {
-    Object.assign(this, partial);
-  }
 }

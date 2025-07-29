@@ -29,7 +29,6 @@ A NestJS-based REST API for a Pomodoro timer application with user authenticatio
 
 - `POST /users/signup` - User registration
 - `POST /users/signin` - User login
-- `GET /users/profile` - Get user profile (protected)
 
 ## Project setup
 

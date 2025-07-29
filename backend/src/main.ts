@@ -1,6 +1,6 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import {
-  ClassSerializerInterceptor,
+  // ClassSerializerInterceptor,
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
@@ -8,7 +8,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
 
   // Enable global validation
   app.useGlobalPipes(
@@ -32,18 +32,20 @@ async function bootstrap() {
   app.enableVersioning({
     type: VersioningType.URI,
   });
-  app.useGlobalInterceptors(
-    // ResolvePromisesInterceptor is used to resolve promises in responses because class-transformer can't do it
-    // https://github.com/typestack/class-transformer/issues/549
-    // new ResolvePromisesInterceptor(),
-    new ClassSerializerInterceptor(app.get(Reflector)),
-  );
+  // app.useGlobalInterceptors(
+  //   // ResolvePromisesInterceptor is used to resolve promises in responses because class-transformer can't do it
+  //   // https://github.com/typestack/class-transformer/issues/549
+  //   // new ResolvePromisesInterceptor(),
+  //   new ClassSerializerInterceptor(app.get(Reflector)),
+  // );
 
   // Setup Swagger
   const config = new DocumentBuilder()
     .setTitle('Pomodoro API')
     .setDescription('The Pomodoro API description')
     .setVersion('1.0')
+    // .setTermsOfService('https://example.com/terms')
+    // .setContact('Pomodoro Team', 'https://example.com', 'support@example.com')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);

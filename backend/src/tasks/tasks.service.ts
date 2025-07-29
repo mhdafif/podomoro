@@ -1,9 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateTaskDto,
   UpdateTaskDto,
-  CreateReportDto,
+  CompleteTaskDto,
   TaskStatus,
 } from './dto/task.dto';
 
@@ -13,31 +17,47 @@ export class TasksService {
 
   // Create a new task
   async createTask(userId: string, createTaskDto: CreateTaskDto) {
+    const existingTask = await this.prisma.task.findFirst({
+      where: {
+        name: createTaskDto.name,
+        userId,
+      },
+    });
+
+    if (existingTask) {
+      // throw new ConflictException(
+      //   'Task with this name already exists for the user',
+      // );
+      throw new ConflictException({
+        code: 409,
+        message: 'Task with this name already exists for the user',
+      });
+    }
     const task = await this.prisma.task.create({
       data: {
         ...createTaskDto,
         userId,
       },
-      include: {
-        // user: {
-        //   select: {
-        //     id: true,
-        //     firstName: true,
-        //     lastName: true,
-        //     email: true,
-        //   },
-        // },
-        // reports: {
-        //   orderBy: {
-        //     date: 'desc',
-        //   },
-        // },
-        // _count: {
-        //   select: {
-        //     reports: true,
-        //   },
-        // },
-      },
+      // include: {
+      //   user: {
+      //     select: {
+      //       id: true,
+      //       firstName: true,
+      //       lastName: true,
+      //       email: true,
+      //     },
+      //   },
+      //   reports: {
+      //     orderBy: {
+      //       date: 'desc',
+      //     },
+      //   },
+      //   _count: {
+      //     select: {
+      //       reports: true,
+      //     },
+      //   },
+      // },
     });
 
     return task;
@@ -135,7 +155,11 @@ export class TasksService {
     });
 
     if (!task) {
-      throw new NotFoundException('Task not found');
+      // throw new NotFoundException('Task not found');
+      throw new NotFoundException({
+        code: 404,
+        message: 'Task not found',
+      });
     }
 
     return task;
@@ -156,7 +180,10 @@ export class TasksService {
     });
 
     if (!existingTask) {
-      throw new NotFoundException('Task not found');
+      throw new NotFoundException({
+        code: 404,
+        message: 'Task not found',
+      });
     }
 
     const task = await this.prisma.task.update({
@@ -164,26 +191,6 @@ export class TasksService {
         id: taskId,
       },
       data: updateTaskDto,
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        reports: {
-          orderBy: {
-            date: 'desc',
-          },
-        },
-        _count: {
-          select: {
-            reports: true,
-          },
-        },
-      },
     });
 
     return task;
@@ -200,9 +207,13 @@ export class TasksService {
     });
 
     if (!existingTask) {
-      throw new NotFoundException('Task not found');
+      throw new NotFoundException({
+        code: 404,
+        message: 'Task not found',
+      });
     }
 
+    // so when deleting a task, reports is deleted automatically due to ON DELETE CASCADE
     await this.prisma.task.delete({
       where: {
         id: taskId,
@@ -212,64 +223,11 @@ export class TasksService {
     return { message: 'Task deleted successfully' };
   }
 
-  // Get task statistics
-  async getTaskStatistics(
-    userId: string,
-    options: {
-      startDate?: Date;
-      endDate?: Date;
-    } = {},
-  ) {
-    const { startDate, endDate } = options;
-
-    const dateFilter: Record<string, unknown> = {};
-    if (startDate) dateFilter.gte = startDate;
-    if (endDate) dateFilter.lte = endDate;
-
-    const tasks = await this.prisma.task.findMany({
-      where: { userId },
-      include: {
-        reports: {
-          where:
-            Object.keys(dateFilter).length > 0
-              ? { date: dateFilter }
-              : undefined,
-          select: {
-            completeMinutes: true,
-            date: true,
-          },
-        },
-      },
-    });
-
-    const statistics = {
-      totalTasks: tasks.length,
-      activeTasks: tasks.filter((t) => t.status === TaskStatus.ACTIVE).length,
-      inactiveTasks: tasks.filter((t) => t.status === TaskStatus.INACTIVE)
-        .length,
-      totalMinutes: 0,
-      tasksWithReports: 0,
-    };
-
-    tasks.forEach((task) => {
-      const taskMinutes = task.reports.reduce(
-        (sum, report) => sum + report.completeMinutes,
-        0,
-      );
-      statistics.totalMinutes += taskMinutes;
-      if (task.reports.length > 0) {
-        statistics.tasksWithReports++;
-      }
-    });
-
-    return statistics;
-  }
-
-  // Add report to task
-  async addTaskReport(
+  // Complete a task - adds completed minutes and creates a report
+  async completeTask(
     taskId: string,
     userId: string,
-    createReportDto: CreateReportDto,
+    completeTaskDto: CompleteTaskDto,
   ) {
     // First verify the task exists and belongs to the user
     const task = await this.prisma.task.findFirst({
@@ -277,135 +235,67 @@ export class TasksService {
     });
 
     if (!task) {
-      throw new NotFoundException('Task not found');
+      throw new NotFoundException({
+        code: 404,
+        message: 'Task not found',
+      });
     }
 
-    return this.prisma.report.create({
-      data: {
-        ...createReportDto,
-        taskId,
-        userId, // Add userId for direct relation
-      },
-      include: {
-        task: {
-          select: { id: true, name: true },
-        },
-      },
-    });
-  }
-
-  // Get reports for a task
-  async getTaskReports(
-    taskId: string,
-    userId: string,
-    options: {
-      startDate?: Date;
-      endDate?: Date;
-      page?: number;
-      limit?: number;
-    } = {},
-  ) {
-    // Verify task belongs to user
-    const task = await this.prisma.task.findFirst({
-      where: {
-        id: taskId,
-        userId,
-      },
-    });
-
-    if (!task) {
-      throw new NotFoundException('Task not found');
-    }
-
-    const { startDate, endDate, page = 1, limit = 10 } = options;
-    const skip = (page - 1) * limit;
-
-    const dateFilter: Record<string, Date> = {};
-    if (startDate) dateFilter.gte = startDate;
-    if (endDate) dateFilter.lte = endDate;
-
-    const where: { taskId: string; date?: Record<string, Date> } = { taskId };
-    if (Object.keys(dateFilter).length > 0) {
-      where.date = dateFilter;
-    }
-
-    const [reports, totalCount] = await Promise.all([
-      this.prisma.report.findMany({
-        where,
-        include: {
-          task: {
-            select: {
-              id: true,
-              name: true,
-              status: true,
-            },
+    // Use a transaction to update task and create report atomically
+    const result = await this.prisma.$transaction(async (prisma) => {
+      // Update task with new completed minutes
+      const updatedTask = await prisma.task.update({
+        where: { id: taskId },
+        data: {
+          // name: {
+          //   set: task.name, // Keep the existing name
+          // },
+          completeMinutes: {
+            increment: completeTaskDto.completeMinutes,
           },
         },
-        orderBy: {
-          date: 'desc',
+        // include: {
+        //   user: {
+        //     select: {
+        //       id: true,
+        //       firstName: true,
+        //       lastName: true,
+        //       email: true,
+        //     },
+        //   },
+        //   reports: {
+        //     orderBy: {
+        //       date: 'desc',
+        //     },
+        //     take: 5, // Get latest 5 reports
+        //   },
+        //   _count: {
+        //     select: {
+        //       reports: true,
+        //     },
+        //   },
+        // },
+      });
+
+      // Create a report for this completion
+      const report = await prisma.report.create({
+        data: {
+          completeMinutes: completeTaskDto.completeMinutes,
+          date: completeTaskDto.date || new Date(),
+          taskId,
+          userId,
         },
-        skip,
-        take: limit,
-      }),
-      this.prisma.report.count({ where }),
-    ]);
+        // include: {
+        //   task: true,
+        //   // task: {
+        //   //   select: { id: true, name: true },
+        //   // },
+        // },
+      });
 
-    return {
-      reports,
-      totalCount,
-      totalPages: Math.ceil(totalCount / limit),
-      currentPage: page,
-    };
-  }
+      return { task: updatedTask, report };
+    });
 
-  // Get all reports for a user (across all tasks)
-  async getUserReports(
-    userId: string,
-    options: {
-      startDate?: Date;
-      endDate?: Date;
-      page?: number;
-      limit?: number;
-    } = {},
-  ) {
-    const { startDate, endDate, page = 1, limit = 10 } = options;
-    const skip = (page - 1) * limit;
-
-    const dateFilter: Record<string, Date> = {};
-    if (startDate) dateFilter.gte = startDate;
-    if (endDate) dateFilter.lte = endDate;
-
-    const where: { userId: string; date?: Record<string, Date> } = { userId };
-    if (Object.keys(dateFilter).length > 0) {
-      where.date = dateFilter;
-    }
-
-    const [reports, totalCount] = await Promise.all([
-      this.prisma.report.findMany({
-        where,
-        include: {
-          task: {
-            select: {
-              id: true,
-              name: true,
-              status: true,
-            },
-          },
-        },
-        orderBy: {
-          date: 'desc',
-        },
-        skip,
-        take: limit,
-      }),
-      this.prisma.report.count({ where }),
-    ]);
-
-    return {
-      reports,
-      totalCount,
-      totalPages: Math.ceil(totalCount / limit),
-      currentPage: page,
-    };
+    return result;
   }
 }

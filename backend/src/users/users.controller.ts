@@ -1,69 +1,42 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  UseGuards,
-  Request,
-  ClassSerializerInterceptor,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, UseGuards, Request } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AuthService } from '../auth/auth.service';
-import { SignUpDto, SignInDto } from '../auth/dto/auth.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UserEntity } from './entities/user.entity';
+import { UserDto } from './dto/user.dto';
+import { plainToInstance } from 'class-transformer';
 
-interface RequestWithUser extends Request {
-  user: UserEntity;
+export interface RequestWithUser extends Request {
+  user: UserDto;
 }
 
 @ApiTags('users')
-@Controller('users')
-@UseInterceptors(ClassSerializerInterceptor)
+@Controller({ path: 'users', version: '1' })
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly authService: AuthService) {}
-
-  @Post('signup')
-  @ApiOperation({ summary: 'User registration' })
-  @ApiResponse({
-    status: 201,
-    description: 'User successfully created',
-    type: UserEntity,
-  })
-  @ApiResponse({ status: 409, description: 'User already exists' })
-  async signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto);
-  }
-
-  @Post('signin')
-  @ApiOperation({ summary: 'User login' })
-  @ApiResponse({
-    status: 200,
-    description: 'User successfully logged in',
-    type: UserEntity,
-  })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto);
-  }
-
   @Get('profile')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({
     status: 200,
     description: 'User profile retrieved successfully',
-    type: UserEntity,
+    type: UserDto,
+    example: {
+      id: 'string',
+      email: 'string',
+      firstName: 'string',
+      lastName: 'string',
+    },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getProfile(@Request() req: RequestWithUser) {
-    return new UserEntity(req.user);
+    const response = req.user;
+    const transformedUser = plainToInstance(UserDto, response, {
+      excludeExtraneousValues: true,
+    });
+    return transformedUser;
   }
 }

@@ -7,7 +7,6 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignUpDto, SignInDto } from './dto/auth.dto';
 import * as bcrypt from 'bcryptjs';
-import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +15,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  // User registration
   async signUp(signUpDto: SignUpDto) {
     const { email, password, firstName, lastName } = signUpDto;
 
@@ -25,10 +25,9 @@ export class AuthService {
     });
 
     if (existingUser) {
-      // throw new ConflictException('User with this email already exists');
       throw new ConflictException({
-        message: 'User with this email already exists',
         code: 409,
+        message: 'User with this email already exists',
       });
     }
 
@@ -36,7 +35,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
-    const user = await this.prisma.user.create({
+    return await this.prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -44,15 +43,6 @@ export class AuthService {
         lastName,
       },
     });
-
-    // Generate JWT token
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
-
-    return {
-      user: new UserEntity(user),
-      accessToken,
-    };
   }
 
   async signIn(signInDto: SignInDto) {
@@ -64,22 +54,28 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException({
+        code: 401,
+        message: 'Invalid email or password.',
+      });
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException({
+        code: 401,
+        message: 'Invalid email or password.',
+      });
     }
 
     // Generate JWT token
     const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = await this.jwtService.signAsync(payload);
 
     return {
-      user: new UserEntity(user),
+      user,
       accessToken,
     };
   }
