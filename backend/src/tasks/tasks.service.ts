@@ -298,4 +298,46 @@ export class TasksService {
 
     return result;
   }
+
+  async getTaskWithReports(
+    userId: string,
+    taskId: string,
+    optionsReport: {
+      startDate?: Date;
+      endDate?: Date;
+    } = {},
+  ) {
+    const whereTask: { id: string; userId: string } = { id: taskId, userId };
+
+    const { startDate, endDate } = optionsReport;
+    const whereReports: Record<string, any> = {
+      date: {
+        gte: startDate || undefined,
+        lte: endDate || undefined,
+      },
+    };
+
+    const response = await this.prisma.task.findUnique({
+      where: whereTask,
+      include: {
+        reports: {
+          where: whereReports,
+          orderBy: { date: 'desc' },
+          select: {
+            id: true,
+            date: true,
+            completeMinutes: true,
+          },
+        },
+      },
+    });
+    const task = {
+      ...response,
+      reportsTotalMinutes: response?.reports.reduce(
+        (total, report) => total + report.completeMinutes,
+        0,
+      ),
+    };
+    return task;
+  }
 }

@@ -8,8 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { Expose } from 'class-transformer';
+import { Type, Expose, Exclude } from 'class-transformer';
 
 export enum TaskStatus {
   ACTIVE = 'ACTIVE',
@@ -33,8 +32,13 @@ export class TaskDto {
   @Expose()
   status: TaskStatus;
 
-  @ApiProperty({ description: 'Total completed minutes' })
+  @ApiProperty({
+    type: 'number',
+    description: 'Minutes spent on this report',
+    example: 25,
+  })
   @Expose()
+  @IsInt()
   completeMinutes: number;
 }
 
@@ -120,4 +124,68 @@ export class TaskQueryDto {
   @IsInt()
   @Min(1)
   limit?: number = 10;
+}
+
+export class TaskWithReportsQueryDto {
+  @ApiPropertyOptional({
+    description: 'Start Date',
+    type: 'string',
+    format: 'date',
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  startDate?: Date;
+
+  @ApiPropertyOptional({
+    description: 'End Date',
+    type: 'string',
+    format: 'date',
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  endDate?: Date;
+}
+
+export class TaskReportDto extends TaskDto {
+  @ApiProperty({
+    type: 'number',
+    description: 'Minutes spent on this report',
+    example: 25,
+  })
+  @Expose()
+  @IsInt()
+  reportsTotalMinutes: number;
+
+  @ApiProperty({
+    description: 'Task reports',
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'Report ID' },
+        date: { type: 'string', format: 'date', description: 'Report date' },
+        completeMinutes: { type: 'number', description: 'Completed minutes' },
+      },
+    },
+  })
+  @Expose()
+  @Type(() => SimpleReportDto)
+  reports: SimpleReportDto[];
+}
+
+// Simple ReportDto without task property (to avoid circular reference)
+export class SimpleReportDto {
+  @ApiProperty({ description: 'Report ID' })
+  @Expose()
+  id: string;
+
+  @ApiProperty({ description: 'Report date' })
+  @Expose()
+  date: Date;
+
+  @ApiProperty({ description: 'Completed minutes' })
+  @Expose()
+  completeMinutes: number;
 }

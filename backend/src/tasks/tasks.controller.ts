@@ -24,6 +24,8 @@ import {
   CompleteTaskDto,
   TaskQueryDto,
   TaskDto,
+  TaskWithReportsQueryDto,
+  TaskReportDto,
 } from './dto/task.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ResponseDto } from 'src/dto/response.dto';
@@ -267,6 +269,53 @@ export class TasksController {
         report: transformedReport,
       },
       message: 'Task completed successfully',
+    };
+  }
+
+  @Get(':id/reports')
+  @ApiOperation({ summary: 'Get task with reports' })
+  @ApiParam({ name: 'id', description: 'Task ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Task reports retrieved successfully',
+    type: TaskReportDto,
+    example: {
+      data: [
+        {
+          id: 'string',
+          name: 'string',
+          status: 'ACTIVE',
+          completeMinutes: 10,
+          task: {
+            id: 'string',
+            date: 'string',
+            completeMinutes: 10,
+          },
+        },
+      ],
+      message: 'Task reports retrieved successfully',
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Task not found',
+  })
+  async getTaskReports(
+    @Request() req: RequestWithUser,
+    @Param('id') taskId: string,
+    @Query() query: TaskWithReportsQueryDto,
+  ): Promise<ResponseDto<any>> {
+    const response = await this.tasksService.getTaskWithReports(
+      req.user.id,
+      taskId,
+      query,
+    );
+    const transformedReports = plainToInstance(TaskReportDto, response, {
+      excludeExtraneousValues: true,
+    });
+    return {
+      data: transformedReports,
+      message: 'Task reports retrieved successfully',
     };
   }
 }
