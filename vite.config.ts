@@ -28,6 +28,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    allowedHosts: ["podomoro.aafif.space"], // 👈 add your domain here
+    host: "0.0.0.0", // optional, if running inside Docker/VPS
+    port: 5173, // or your dev port
+  },
   // server: {
   //   port: 5173,
   //   host: "0.0.0.0",
